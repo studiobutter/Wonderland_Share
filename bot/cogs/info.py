@@ -12,7 +12,7 @@ class InfoCog(commands.Cog):
         embed = discord.Embed(
             title="Wonderland Explorer",
             color=15844367,
-            description="This bot is made by Studio Butter ([@charaanimates](<discord://-/users/674463869816799243>)) and is open-source on [GitHub](<https://github.com/studiobutter/Wonderland_Share>). For questions or issues with this bot, DM me on Discord or open an issue on GitHub.\nTo contribute, DM me or open a PR on GitHub."
+            description="This bot is made by Studio Butter ([@charaanimates](<discord://-/users/674463869816799243>)) and is open-source on [GitHub](<https://github.com/studiobutter/Wonderland_Share>). For questions or issues with this bot, DM me on Discord or open an issue on GitHub.\nTo contribute, DM me or open a PR on GitHub.\nThis bot is self-hosted in my house, so uptime is not guaranteed. If you wish to have it hosted 24/7, feel free to donate [here](<https://ko-fi.com/studiobutterteam>)",
         )
         await interaction.response.send_message(embed=embed)
 
