@@ -1,0 +1,14 @@
+{
+    "url": "https://bbs-api-os.hoyolab.com/community/ugc_community/web/api/level/full/info",
+    "request_type": "POST",
+    "payload": {
+        "level_id": "guid",
+        "region": "",
+        "uid": "",
+        "agg_req_list": [
+            {
+                "api_name": "level_detail"
+            }
+        ]
+    }
+}

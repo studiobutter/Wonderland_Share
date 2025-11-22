@@ -1,0 +1,46 @@
+{
+  "embeds": [
+    {
+      "image": {
+        "url": "cover_img"
+      },
+      "color": 15844367,
+      "title": "level_name",
+      "thumbnail": {
+        "url": ""
+      },
+      "description": "desc",
+      "fields": [
+        {
+          "name": "GUID: ",
+          "value": "level_id"
+        },
+        {
+          "name": "Server",
+          "value": "server_region"
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "style": 5,
+          "url": "https://link.studiobutter.io.vn/ugc/wonderland?ugc_id=level_id&server=server_region",
+          "custom_id": "p_239283976357810251",
+          "label": "Open in Genshin"
+        },
+        {
+          "type": 2,
+          "style": 5,
+          "url": "https://act.hoyolab.com/ys/ugc_community/mx/#/pages/level-detail/index?id=level_id&region=server_region",
+          "custom_id": "p_239284290381156429",
+          "label": "Check HoYoLAB page"
+        }
+      ]
+    }
+  ]
+}
