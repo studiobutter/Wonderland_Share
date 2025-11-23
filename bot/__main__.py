@@ -7,10 +7,6 @@ import logging
 from typing import Literal, Optional
 
 from config.settings import DISCORD_TOKEN, BOT_PREFIX, BOT_STATUS, DEBUG, OWNER_ID
-from config.database import init_db, close_session
-
-# Initialize database on startup
-init_db()
 
 # Jishaku settings
 os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'

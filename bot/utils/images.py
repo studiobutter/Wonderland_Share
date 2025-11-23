@@ -126,15 +126,14 @@ def remove_cached_file(path: Path | str) -> bool:
 
 async def upload_file_via_interaction(interaction: discord.Interaction, file_path: Path | str,
                                        filename: Optional[str] = None, *, view: Optional[discord.ui.View] = None,
-                                       embed: Optional[discord.Embed] = None, use_channel: bool = False):
+                                       embed: Optional[discord.Embed] = None, use_channel: bool = False) -> bool:
     """
-    Upload a local file using an Interaction followup and return the uploaded attachment URL.
+    Send a file as part of an interaction followup or channel message.
 
-    This sends the file as part of the interaction followup, so the attachment will be associated
-    with the bot's message and Discord will host it on their CDN. The caller is responsible for
-    deleting the local cached file afterwards.
+    This sends the file directly as an attachment, which Discord will host on their CDN temporarily.
+    The file path will be cleaned up by the caller.
 
-    Returns the attachment URL string, or None if the upload fails.
+    Returns True if sent successfully, False otherwise.
     """
     file_path = Path(file_path)
     if not file_path.exists():
@@ -143,89 +142,26 @@ async def upload_file_via_interaction(interaction: discord.Interaction, file_pat
     # Use the provided filename or the actual file name
     discord_file = discord.File(fp=str(file_path), filename=filename or file_path.name)
 
-    # Send followup with file. Caller should have already called `interaction.response.defer()`.
+    # Build send kwargs
     send_kwargs: dict = {"file": discord_file}
     if embed is not None:
         send_kwargs["embed"] = embed
     if view is not None:
         send_kwargs["view"] = view
 
-    sent = None
     try:
         # If use_channel is True, send to the interaction channel (fallback), otherwise send as followup.
         if use_channel:
             channel = getattr(interaction, 'channel', None)
             if channel is None:
-                raise RuntimeError("No channel available to send the file")
-            sent = await channel.send(**send_kwargs)
+                logger.error("No channel available to send the file")
+                return False
+            await channel.send(**send_kwargs)
         else:
-            # Explicitly wait=True to get a Message object back
-            sent = await interaction.followup.send(**send_kwargs, wait=True)
-    except Exception as e:
-        logger.error(f"Failed to send message with file: {e}", exc_info=True)
-        # If sending fails, we can't do much else. The original `defer` will eventually time out.
-        return None
-
-
-    # Extract attachment URL from the sent message
-    if sent:
-        # Using .attachments on a Message object should work directly.
-        # For a WebhookMessage, it might be empty.
-        attachments = getattr(sent, "attachments", [])
-        if attachments and len(attachments) > 0:
-            url = attachments[0].url
-            logger.info(f"Uploaded file to Discord: {url}")
-            return url
+            await interaction.followup.send(**send_kwargs)
         
-        # If attachments are not present, it's likely a WebhookMessage.
-        # Fallback to fetching the message via the API.
-        logger.warning(
-            f"Message sent (obj: {type(sent).__name__}) but attachments not in response; fetching via API"
-        )
-        try:
-            bot = interaction.client
-            if not bot:
-                logger.error("No bot client available in interaction, cannot fetch message.")
-            else:
-                channel_id = (
-                    sent.channel.id
-                    if hasattr(sent, "channel") and sent.channel
-                    else interaction.channel_id
-                )
-                if not channel_id:
-                    logger.error("Cannot determine channel ID for fetching message.")
-                else:
-                    channel = await bot.fetch_channel(channel_id)
-                    # Ensure the channel is of a type that has `fetch_message`
-                    if isinstance(
-                        channel,
-                        (
-                            discord.TextChannel,
-                            discord.DMChannel,
-                            discord.GroupChannel,
-                            discord.Thread,
-                        ),
-                    ):
-                        # Retry fetching a few times with increasing backoff
-                        for attempt in range(1, 4): # Try 3 times
-                            await asyncio.sleep(attempt * 1.5)  # 1.5s, 3s, 4.5s
-                            try:
-                                fetched_message = await channel.fetch_message(sent.id)
-                                if fetched_message and fetched_message.attachments:
-                                    url = fetched_message.attachments[0].url
-                                    logger.info(f"Fetched message via API on attempt {attempt}; got attachment URL: {url}")
-                                    return url
-                                else:
-                                    logger.warning(f"Attempt {attempt}: Fetched message but no attachments found yet.")
-                            except discord.errors.NotFound:
-                                logger.error(f"Failed to fetch message {sent.id} on attempt {attempt}, it may have been deleted.")
-                                break  # Stop retrying if message is not found
-                            except Exception as e:
-                                logger.error(f"An unexpected error occurred while fetching message on attempt {attempt}: {e}")
-                    else:
-                        logger.error(f"Channel {channel_id} is not a messageable channel type.")
-        except Exception as e:
-            logger.error(f"Could not fetch message via API due to a fundamental error: {e}", exc_info=True)
-
-    logger.warning(f"Failed to retrieve attachment URL for message {sent.id} after multiple attempts. The message will be left as-is, but the URL will not be cached.")
-    return None
+        logger.info(f"Sent file as attachment: {file_path.name}")
+        return True
+    except Exception as e:
+        logger.exception(f"Failed to send file: {e}")
+        return False

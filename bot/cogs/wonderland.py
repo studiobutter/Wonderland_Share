@@ -7,7 +7,6 @@ import logging
 from pathlib import Path
 
 from config.settings import ServerRegion, REGION_NAMES
-from config.db_utils import get_cached_image, save_cached_image, delete_cached_image
 from bot.utils.images import download_image, remove_cached_file, upload_file_via_interaction
 
 # Need to work on GitHub Issue #3 regarding handling cover_img issue
@@ -110,15 +109,6 @@ class WonderlandCog(commands.Cog):
             if isinstance(level_detail, dict):
                 nested_msg = level_detail.get('message')
 
-            # If level is not found, try to delete it from cache
-            if isinstance(level_detail, dict) and level_detail.get('retcode', 0) != 0:
-                try:
-                    was_deleted = delete_cached_image(guid, server)
-                    if was_deleted:
-                        logging.info(f"Deleted cached image for invalid level {guid} on server {server}")
-                except Exception:
-                    logging.exception(f"Failed to delete cached image for invalid level {guid}")
-
             error_embed = discord.Embed(
                 title="An error occurred",
                 description=nested_msg or data.get('message', 'Level not found'),
@@ -181,70 +171,49 @@ class WonderlandCog(commands.Cog):
                         style=discord.ButtonStyle.link
                     ))
 
-        # Handle cover image: check DB cache first, otherwise download -> upload to Discord -> save to DB
+        # Handle cover image: download and send as file attachment
         cover_url = level_info.get('cover_img', {}).get('url')
         if cover_url:
-            try:
-                cached = get_cached_image(guid, server)
-            except Exception:
-                logging.exception('Database lookup failed for cached image')
-                cached = None
-
-            if cached and cached.get('image_url'):
-                final_embed.set_image(url=cached.get('image_url'))
-                if use_channel_fallback:
-                    channel = getattr(interaction, 'channel', None)
-                    if channel:
-                        send_func = getattr(channel, 'send', None)
-                        if send_func:
-                            await send_func(embed=final_embed, view=view)
-                    else:
-                        logging.warning('No fallback channel available to send the embed')
-                else:
-                    await interaction.followup.send(embed=final_embed, view=view)
-                return
-
-            # Not cached: download and upload
             file_path = None
             try:
                 file_path = await download_image(cover_url, guid=guid, server=server, cache_dir='.cache')
+                logging.info(f'Downloaded cover image for {guid} on {server}')
             except Exception:
                 logging.exception('Failed to download cover image')
                 # Send embed without image
                 if use_channel_fallback:
                     channel = getattr(interaction, 'channel', None)
-                    if channel:
-                        send_func = getattr(channel, 'send', None)
-                        if send_func:
-                            await send_func(embed=final_embed, view=view)
-                    else:
-                        logging.warning('No fallback channel available to send the embed')
+                    if channel and hasattr(channel, 'send'):
+                        await channel.send(embed=final_embed, view=view)
                 else:
                     await interaction.followup.send(embed=final_embed, view=view)
                 return
 
+            # Set embed image to attachment reference
             attachment_name = Path(file_path).name
-            # Set embed image to attachment reference; upload helper will send the message
             final_embed.set_image(url=f'attachment://{attachment_name}')
 
             try:
-                uploaded_url = await upload_file_via_interaction(
+                # Send the file as attachment
+                success = await upload_file_via_interaction(
                     interaction, file_path, filename=attachment_name, view=view, embed=final_embed,
                     use_channel=use_channel_fallback
                 )
-                # Save uploaded URL to DB for future use
-                if uploaded_url:
-                    try:
-                        save_cached_image(guid, server, uploaded_url, original_url=cover_url)
-                    except Exception:
-                        logging.exception('Failed to save cached image to DB')
-            except Exception:
-                logging.exception('Failed to upload file to Discord')
+                if not success:
+                    # Fallback: send without attachment
+                    final_embed.set_image(url=None)
+                    if use_channel_fallback:
+                        channel = getattr(interaction, 'channel', None)
+                        if channel and hasattr(channel, 'send'):
+                            await channel.send(embed=final_embed, view=view)
+                    else:
+                        await interaction.followup.send(embed=final_embed, view=view)
             finally:
-                # Clean up local cached file
+                # Always clean up local cached file
                 try:
                     if file_path:
                         remove_cached_file(file_path)
+                        logging.info(f'Cleaned up cached file: {file_path}')
                 except Exception:
                     logging.exception('Failed to remove cached file')
             return
