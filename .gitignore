@@ -28,3 +28,4 @@ ENV/
 *.db
 bot_data.db
 .DS_Store
+.cache/
