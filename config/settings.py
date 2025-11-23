@@ -20,7 +20,7 @@ REGION_NAMES = {
     ServerRegion.ASIA: 'Asia',
     ServerRegion.EUROPE: 'Europe',
     ServerRegion.AMERICA: 'America',
-    ServerRegion.CHT: 'HK/TW/MO',
+    ServerRegion.CHT: 'TW/HK/MO',
 }
 
 # Development
