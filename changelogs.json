@@ -1,0 +1,18 @@
+{
+    "changelogs": [
+        {
+            "version": "1.0.0",
+            "date": "11/22/2025",
+            "changes": [
+                "Initial release"
+            ]
+        },
+        {
+            "version": "1.0.1",
+            "date": "11/23/2025",
+            "changes": [
+                "Added `/about`, `/wonderland` cover images now upload to Discord CDN and use it to load instead of loading from HoYo servers. Introduce `/changelogs` command to view changelogs."
+            ]
+        }
+    ]
+}
