@@ -124,6 +124,38 @@ def remove_cached_file(path: Path | str) -> bool:
         return False
 
 
+async def cleanup_old_cache_files(
+    cache_dir: Optional[Path | str] = None, 
+    max_age_seconds: int = 3600
+) -> int:
+    """
+    Remove cache files older than max_age_seconds (default 1 hour).
+    
+    Returns the number of files deleted.
+    """
+    cache_path = ensure_cache_dir(cache_dir)
+    current_time = time.time()
+    deleted_count = 0
+
+    try:
+        for file_path in cache_path.glob("*"):
+            if not file_path.is_file():
+                continue
+            
+            file_age = current_time - file_path.stat().st_mtime
+            if file_age > max_age_seconds:
+                try:
+                    file_path.unlink()
+                    logger.info(f"Cleaned up old cache file: {file_path.name} (age: {file_age:.0f}s)")
+                    deleted_count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to delete old cache file {file_path.name}: {e}")
+    except Exception as e:
+        logger.exception(f"Error during cache cleanup: {e}")
+
+    return deleted_count
+
+
 async def upload_file_via_interaction(interaction: discord.Interaction, file_path: Path | str,
                                        filename: Optional[str] = None, *, view: Optional[discord.ui.View] = None,
                                        embed: Optional[discord.Embed] = None, use_channel: bool = False) -> bool:

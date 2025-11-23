@@ -1,12 +1,13 @@
 """Main Discord bot instance."""
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import os
 import sys
 import logging
 from typing import Literal, Optional
 
 from config.settings import DISCORD_TOKEN, BOT_PREFIX, BOT_STATUS, DEBUG, OWNER_ID
+from bot.utils.images import cleanup_old_cache_files
 
 # Jishaku settings
 os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'
@@ -41,6 +42,24 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name=BOT_STATUS)
     )
     await load_cogs()
+    periodic_cache_cleanup.start()
+
+
+@tasks.loop(hours=1)
+async def periodic_cache_cleanup():
+    """Periodically clean up cache files older than 1 hour."""
+    try:
+        deleted = await cleanup_old_cache_files(cache_dir='.cache', max_age_seconds=3600)
+        if deleted > 0:
+            logger.info(f"Periodic cache cleanup removed {deleted} old file(s)")
+    except Exception as e:
+        logger.exception(f"Error in periodic cache cleanup: {e}")
+
+
+@periodic_cache_cleanup.before_loop
+async def before_periodic_cleanup():
+    """Wait for bot to be ready before starting cleanup task."""
+    await bot.wait_until_ready()
 
 
 @bot.event
@@ -50,10 +69,8 @@ async def on_error(event, *args, **kwargs):
 
 
 def shutdown_handler():
-    """Handle bot shutdown - cleanup database."""
+    """Handle bot shutdown."""
     logger.info('🔌 Shutting down bot...')
-    close_session()
-    logger.info('✅ Database session closed')
 
 
 async def load_cogs():
