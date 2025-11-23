@@ -7,6 +7,10 @@ import logging
 from typing import Literal, Optional
 
 from config.settings import DISCORD_TOKEN, BOT_PREFIX, BOT_STATUS, DEBUG, OWNER_ID
+from config.database import init_db, close_session
+
+# Initialize database on startup
+init_db()
 
 # Jishaku settings
 os.environ['JISHAKU_NO_UNDERSCORE'] = 'True'
@@ -41,6 +45,19 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name=BOT_STATUS)
     )
     await load_cogs()
+
+
+@bot.event
+async def on_error(event, *args, **kwargs):
+    """Handle errors."""
+    logger.exception("Unhandled error in %s", event)
+
+
+def shutdown_handler():
+    """Handle bot shutdown - cleanup database."""
+    logger.info('🔌 Shutting down bot...')
+    close_session()
+    logger.info('✅ Database session closed')
 
 
 async def load_cogs():
@@ -104,10 +121,12 @@ if __name__ == '__main__':
         print('❌ Error: DISCORD_TOKEN environment variable not set')
         sys.exit(1)
     
-    # Database initialization removed (not required currently)
-    # init_db()
-    
     if DEBUG:
         print('🐛 Running in DEBUG mode')
     
-    bot.run(DISCORD_TOKEN)
+    try:
+        bot.run(DISCORD_TOKEN)
+    except KeyboardInterrupt:
+        logger.info('⚠️  Bot interrupted by user')
+    finally:
+        shutdown_handler()

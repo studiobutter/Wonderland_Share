@@ -5,6 +5,8 @@ import aiohttp
 import json
 from config.settings import ServerRegion, REGION_NAMES
 
+# Need to work on GitHub Issue #3 regarding handling cover_img issue
+
 class WonderlandCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
