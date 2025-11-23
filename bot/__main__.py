@@ -3,8 +3,10 @@ import discord
 from discord.ext import commands, tasks
 import os
 import sys
+import json
 import logging
 from typing import Literal, Optional
+from pathlib import Path
 
 from config.settings import DISCORD_TOKEN, BOT_PREFIX, BOT_STATUS, DEBUG, OWNER_ID
 from bot.utils.images import cleanup_old_cache_files
@@ -34,13 +36,31 @@ bot = commands.Bot(
 )
 
 
+def get_latest_version() -> str:
+    """Get the latest version from changelogs.json."""
+    try:
+        changelogs_file = Path("changelogs.json")
+        if changelogs_file.exists():
+            with open(changelogs_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                changelogs = data.get('changelogs', [])
+                if changelogs:
+                    return f"v{changelogs[-1].get('version', '1.0.0')}"
+    except Exception as e:
+        logger.warning(f"Failed to load version from changelogs: {e}")
+    return "v1.0.0"
+
+
 @bot.event
 async def on_ready():
     """Called when the bot is ready."""
     logger.info('✅ Bot connected as %s', bot.user)
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=BOT_STATUS)
-    )
+    
+    # Set custom status with latest version and bot status
+    latest_version = get_latest_version()
+    custom_status = discord.CustomActivity(name=f"{latest_version} | {BOT_STATUS}")
+    await bot.change_presence(activity=custom_status)
+    
     await load_cogs()
     periodic_cache_cleanup.start()
 
