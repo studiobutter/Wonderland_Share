@@ -17,13 +17,14 @@ def get_cached_image(guid: str, server: str) -> dict | None:
     Returns:
         Dictionary with image_url if found, None otherwise
     """
+    session = None
     try:
         session = get_session()
         cached = session.query(CachedImage).filter(
             CachedImage.guid == guid,
             CachedImage.server == server
         ).first()
-        
+
         if cached:
             return {
                 'image_url': cached.image_url,
@@ -35,7 +36,8 @@ def get_cached_image(guid: str, server: str) -> dict | None:
         logger.error(f"Database error retrieving cached image: {e}")
         return None
     finally:
-        session.close()
+        if session:
+            session.close()
 
 
 def save_cached_image(guid: str, server: str, image_url: str, original_url: str | None = None) -> bool:
@@ -51,19 +53,20 @@ def save_cached_image(guid: str, server: str, image_url: str, original_url: str 
     Returns:
         True if successful, False otherwise
     """
+    session = None
     try:
         session = get_session()
-        
+
         # Check if already exists
         existing = session.query(CachedImage).filter(
             CachedImage.guid == guid,
             CachedImage.server == server
         ).first()
-        
+
         if existing:
-            # Update existing record
-            existing.image_url = image_url
-            existing.original_url = original_url
+            # Update existing record (use setattr to avoid static typing issues)
+            setattr(existing, 'image_url', image_url)
+            setattr(existing, 'original_url', original_url)
             logger.info(f"Updated cached image for GUID {guid} on server {server}")
         else:
             # Create new record
@@ -75,15 +78,17 @@ def save_cached_image(guid: str, server: str, image_url: str, original_url: str 
             )
             session.add(cached_image)
             logger.info(f"Saved cached image for GUID {guid} on server {server}")
-        
+
         session.commit()
         return True
     except SQLAlchemyError as e:
         logger.error(f"Database error saving cached image: {e}")
-        session.rollback()
+        if session:
+            session.rollback()
         return False
     finally:
-        session.close()
+        if session:
+            session.close()
 
 
 def delete_cached_image(guid: str, server: str) -> bool:
@@ -97,16 +102,17 @@ def delete_cached_image(guid: str, server: str) -> bool:
     Returns:
         True if successful, False otherwise
     """
+    session = None
     try:
         session = get_session()
-        
+
         deleted = session.query(CachedImage).filter(
             CachedImage.guid == guid,
             CachedImage.server == server
         ).delete()
-        
+
         session.commit()
-        
+
         if deleted:
             logger.info(f"Deleted cached image for GUID {guid} on server {server}")
             return True
@@ -115,10 +121,12 @@ def delete_cached_image(guid: str, server: str) -> bool:
             return False
     except SQLAlchemyError as e:
         logger.error(f"Database error deleting cached image: {e}")
-        session.rollback()
+        if session:
+            session.rollback()
         return False
     finally:
-        session.close()
+        if session:
+            session.close()
 
 
 def delete_all_cached_images() -> int:
@@ -128,6 +136,7 @@ def delete_all_cached_images() -> int:
     Returns:
         Number of deleted records
     """
+    session = None
     try:
         session = get_session()
         count = session.query(CachedImage).delete()
@@ -136,7 +145,9 @@ def delete_all_cached_images() -> int:
         return count
     except SQLAlchemyError as e:
         logger.error(f"Database error deleting all cached images: {e}")
-        session.rollback()
+        if session:
+            session.rollback()
         return 0
     finally:
-        session.close()
+        if session:
+            session.close()
