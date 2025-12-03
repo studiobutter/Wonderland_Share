@@ -10,8 +10,6 @@ from pathlib import Path
 from config.settings import ServerRegion, REGION_NAMES
 from bot.utils.images import download_image, remove_cached_file, upload_file_via_interaction
 
-# Need to work on GitHub Issue #3 regarding handling cover_img issue
-
 class WonderlandCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -139,7 +137,7 @@ class WonderlandCog(commands.Cog):
                 await interaction.followup.send(embed=error_embed, ephemeral=True)
             return
 
-        embed_data = self.embed_template.copy()
+        embed_data = copy.deepcopy(self.embed_template)
         
         # Populate embed
         embed = embed_data['embeds'][0]
