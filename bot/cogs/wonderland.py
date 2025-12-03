@@ -1,3 +1,4 @@
+import copy
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -47,7 +48,7 @@ class WonderlandCog(commands.Cog):
             use_channel_fallback = True
             logging.exception('Could not defer interaction; falling back to channel sends')
 
-        payload = self.payload_template['payload'].copy()
+        payload = copy.deepcopy(self.payload_template['payload'])
         payload['level_id'] = guid
         payload['region'] = server
 
