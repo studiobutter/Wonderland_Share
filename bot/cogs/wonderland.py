@@ -1,14 +1,18 @@
+# --- BLOCK 1: Standard Library (Built-in Python stuff) ---
 import copy
-import discord
-from discord.ext import commands
-from discord import app_commands
-import aiohttp
 import json
 import logging
 from pathlib import Path
 
-from config.settings import ServerRegion, REGION_NAMES
+# --- BLOCK 2: Third-Party (Pip installed stuff) ---
+import aiohttp
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+# --- BLOCK 3: Local Application (Your own files) ---
 from bot.utils.images import download_image, remove_cached_file, upload_file_via_interaction
+from config.settings import REGION_NAMES, ServerRegion
 
 class WonderlandCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
