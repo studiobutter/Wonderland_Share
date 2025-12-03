@@ -14,7 +14,7 @@
                 "Added `/about`, `/wonderland` cover images now upload to Discord CDN and use it to load instead of loading from HoYo servers. Introduce `/changelogs` command to view changelogs."
             ]
         },
-                {
+        {
             "version": "1.0.2",
             "date": "12/03/2025",
             "changes": [
