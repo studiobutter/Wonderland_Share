@@ -83,6 +83,7 @@ class Changelogs(commands.Cog):
             return []
 
     @app_commands.command(name='changelogs', description='View bot version changelogs')
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def changelogs(self, interaction: discord.Interaction):
         """Display bot changelogs."""
         await interaction.response.defer(ephemeral=True)

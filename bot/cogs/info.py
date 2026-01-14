@@ -8,6 +8,7 @@ class InfoCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="about", description="Learn about the Wonderland bot.")
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def about(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title="Wonderland Explorer",
