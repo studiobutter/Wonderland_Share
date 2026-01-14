@@ -20,6 +20,16 @@
             "changes": [
                 "fix: Previous GUID being retained when running `/wonderland`"
             ]
+        },
+        {
+            "version": "1.0.3",
+            "date": "01/15/2026",
+            "changes": [
+                "fix: Prevented /wonderland command from failing when embed descriptions exceed Discord limits",
+                "improve: Truncate long level descriptions for better mobile readability",
+                "improve: Allow commands to be used in Direct Messages (DMs)",
+                "internal: Added daily rotating log files for improved debugging and stability"
+            ]
         }
     ]
 }
