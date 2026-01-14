@@ -18,6 +18,7 @@ from bot.utils.images import (
 )
 
 MAX_DESC_LENGTH = 1024  # Mobile-friendly summary limit
+logger = logging.getLogger(__name__)
 
 from config.settings import REGION_NAMES, ServerRegion
 
@@ -68,7 +69,7 @@ class WonderlandCog(commands.Cog):
             # If the interaction is no longer valid (Unknown interaction), fallback to channel sends.
             # This can happen if the interaction token expired or was invalidated.
             use_channel_fallback = True
-            logging.exception(
+            logger.exception(
                 "Could not defer interaction; falling back to channel sends"
             )
 
@@ -222,9 +223,9 @@ class WonderlandCog(commands.Cog):
                 file_path = await download_image(
                     cover_url, guid=guid, server=server, cache_dir=".cache"
                 )
-                logging.info(f"Downloaded cover image for {guid} on {server}")
+                logger.info(f"Downloaded cover image for {guid} on {server}")
             except Exception:
-                logging.exception("Failed to download cover image")
+                logger.exception("Failed to download cover image")
                 # Send embed without image
                 if use_channel_fallback:
                     channel = getattr(interaction, "channel", None)
@@ -262,9 +263,9 @@ class WonderlandCog(commands.Cog):
                 try:
                     if file_path:
                         remove_cached_file(file_path)
-                        logging.info(f"Cleaned up cached file: {file_path}")
+                        logger.info(f"Cleaned up cached file: {file_path}")
                 except Exception:
-                    logging.exception("Failed to remove cached file")
+                    logger.exception("Failed to remove cached file")
             return
 
         # No cover URL: just send embed
@@ -275,7 +276,7 @@ class WonderlandCog(commands.Cog):
                 if send_func:
                     await send_func(embed=final_embed, view=view)
             else:
-                logging.warning("No fallback channel available to send the embed")
+                logger.warning("No fallback channel available to send the embed")
         else:
             await interaction.followup.send(embed=final_embed, view=view)
 

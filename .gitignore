@@ -29,3 +29,5 @@ ENV/
 bot_data.db
 .DS_Store
 .cache/
+logs/
+*.log
