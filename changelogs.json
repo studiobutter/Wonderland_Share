@@ -28,6 +28,7 @@
                 "fix: Prevented /wonderland command from failing when embed descriptions exceed Discord limits",
                 "improve: Truncate long level descriptions for better mobile readability",
                 "improve: Allow commands to be used in Direct Messages (DMs)",
+                "improve: [/about] Added a link to Community server (Wonderland Cafe)",
                 "internal: Added daily rotating log files for improved debugging and stability"
             ]
         }

@@ -13,6 +13,7 @@
 
 - Commands can now be used in Direct Messages (DMs) with the bot.
 - Added structured logging with daily rotating log files to improve debugging and stability.
+- Added a link to Community server (Wonderland Cafe)
 
 ### Internal
 
