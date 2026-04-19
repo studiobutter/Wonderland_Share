@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-import imghdr
+import filetype
 import os
 import time
 import uuid
@@ -34,10 +34,23 @@ def ensure_cache_dir(cache_dir: Optional[Path | str] = None) -> Path:
 
 def _guess_extension_from_content(content: bytes, content_type: Optional[str] = None) -> str:
     """Return a file extension (without dot) based on content bytes or content-type header."""
-    # First try imghdr
-    kind = imghdr.what(None, h=content)
-    if kind:
-        return kind if kind != 'jpeg' else 'jpg'
+    # First try filetype (replacement for imghdr)
+    kind = filetype.guess(content)
+    if kind and kind.extension:
+        return 'jpg' if kind.extension == 'jpeg' else kind.extension
+
+    # Fallback to content-type header
+    if content_type:
+        if '/' in content_type:
+            main, subtype = content_type.split('/', 1)
+            if main == 'image':
+                subtype = subtype.split(';', 1)[0]
+                if subtype == 'jpeg':
+                    return 'jpg'
+                return subtype
+
+    # Last resort
+    return 'bin'
 
     # Fallback to content-type header
     if content_type:
