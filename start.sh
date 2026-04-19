@@ -1,8 +1,8 @@
 #!/bin/bash
-git checkout main
-git pull
+set -e
 
-set -a
+cd /home/op/Public/Development/UGC_Share
+
 source .venv/bin/activate
 
 python -m bot
