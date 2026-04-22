@@ -33,9 +33,10 @@ def truncate_description(text: str, limit: int = 2048) -> str:
 class WonderlandCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        with open("ref/payload.json", "r") as f:
+        ref_dir = Path(__file__).parent.parent.parent / "ref"
+        with open(ref_dir / "payload.json", "r") as f:
             self.payload_template = json.load(f)
-        with open("ref/embed.json", "r") as f:
+        with open(ref_dir / "embed.json", "r") as f:
             self.embed_template = json.load(f)
 
     @app_commands.command(
@@ -54,8 +55,8 @@ class WonderlandCog(commands.Cog):
     async def wonderland(
         self, interaction: discord.Interaction, guid: str, server: str
     ):
-        # Validate GUID: only numeric GUIDs are accepted
-        if not guid.isdigit():
+        # Validate GUID: only numeric GUIDs are accepted (typically 9-10 digits)
+        if not guid.isdigit() or len(guid) not in range(9, 11):
             error_embed = discord.Embed(
                 title="An error occurred", description="Invalid GUID", color=15158332
             )
@@ -145,11 +146,19 @@ class WonderlandCog(commands.Cog):
             if isinstance(level_detail, dict):
                 nested_msg = level_detail.get("message")
 
-            error_embed = discord.Embed(
-                title="An error occurred",
-                description=nested_msg or data.get("message", "Level not found"),
-                color=15158332,
-            )
+            # Check for specific "not found" retcode
+            if level_detail.get("retcode") == -2000431:
+                error_embed = discord.Embed(
+                    title="❌ GUID Not Found",
+                    description=f"The Wonderland stage with GUID `{guid}` does not exist on the `{REGION_NAMES.get(server, server)}` server.",
+                    color=15158332,
+                )
+            else:
+                error_embed = discord.Embed(
+                    title="An error occurred",
+                    description=nested_msg or data.get("message", "Level not found"),
+                    color=15158332,
+                )
             if use_channel_fallback:
                 channel = getattr(interaction, "channel", None)
                 if channel and hasattr(channel, "send"):

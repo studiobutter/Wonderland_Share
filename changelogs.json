@@ -31,6 +31,15 @@
                 "improve: [/about] Added a link to Community server (Wonderland Cafe)",
                 "internal: Added daily rotating log files for improved debugging and stability"
             ]
+        },
+        {
+            "version": "1.0.4",
+            "date": "04/23/2026",
+            "changes": [
+                "improve: Support for Python 3.13",
+                "fix: No errors when invalid GUID is provided to /wonderland command",
+                "feat: Added /del for deleting bot messages in DMs only."
+            ]
         }
     ]
 }

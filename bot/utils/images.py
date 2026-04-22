@@ -52,19 +52,13 @@ def _guess_extension_from_content(content: bytes, content_type: Optional[str] = 
     # Last resort
     return 'bin'
 
-    # Fallback to content-type header
-    if content_type:
-        if '/' in content_type:
-            main, subtype = content_type.split('/', 1)
-            if main == 'image':
-                # strip parameters
-                subtype = subtype.split(';', 1)[0]
-                if subtype == 'jpeg':
-                    return 'jpg'
-                return subtype
 
-    # Last resort
-    return 'bin'
+__all__ = [
+    'ensure_cache_dir',
+    'download_image',
+    'remove_cached_file',
+    'cleanup_old_cache_files',
+]
 
 
 def _make_filename(guid: Optional[str], server: Optional[str], ext: str) -> str:
