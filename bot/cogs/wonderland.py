@@ -43,7 +43,7 @@ class WonderlandCog(commands.Cog):
         name="wonderland", description="Fetch information about a Wonderland level."
     )
     @app_commands.describe(
-        guid="The GUID of the level.", server="The server the level is on."
+        guid="The GUID of the level. (9-12 digits)", server="The server the level is on."
     )
     @app_commands.choices(
         server=[
@@ -55,10 +55,10 @@ class WonderlandCog(commands.Cog):
     async def wonderland(
         self, interaction: discord.Interaction, guid: str, server: str
     ):
-        # Validate GUID: only numeric GUIDs are accepted (typically 9-10 digits)
-        if not guid.isdigit() or len(guid) not in range(9, 11):
+        # Validate GUID: only numeric GUIDs are accepted (9-12 digits)
+        if not guid.isdigit() or len(guid) not in range(9, 12):
             error_embed = discord.Embed(
-                title="An error occurred", description="Invalid GUID", color=15158332
+                title="Invalid GUID", description="Please enter a valid GUID (9-12 digits).", color=15158332
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
             return
