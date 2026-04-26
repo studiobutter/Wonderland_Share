@@ -43,7 +43,7 @@
         },
         {
             "version": "1.0.5",
-            "date": "04/23/2026",
+            "date": "04/26/2026",
             "changes": [
                 "fix: GUID characters that are not valid hexadecimal digits are now properly handled in /wonderland command"
             ]
