@@ -19,7 +19,10 @@
           "name": "Server",
           "value": "server_region"
         }
-      ]
+      ],
+      "footer": {
+        "text": "👍🏻 {good_rate} |  🔥 {hot_score} | 👤 {show_limit_play_num_str}"
+      }
     }
   ],
   "components": [
