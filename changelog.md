@@ -1,5 +1,35 @@
 # Changelogs
 
+## v1.0.7
+
+**Release Date**: 06/08/2026
+
+- imp: Added settings to set user language and default server region
+- loc: Localization support for English, Vietnamese and Chinese (Traditional), more languages coming soon! Contributions coming soon.
+- imp: Wonderland command can call Localized texts. Fall back is used in the backend and show said content if said language isn't avaliable
+- imp: Code QA Check
+
+## v1.0.6
+
+**Release Date**: 06/07/2026
+
+- imp: Open with Genshin Impact - Cloud
+- imp: Added Likes, Hotness and Amount of players requires to play.
+
+## v1.0.5
+
+**Release Date**: 04/26/2026
+
+- fix: GUID characters that are not valid hexadecimal digits are now properly handled in /wonderland command
+
+## v1.0.4
+
+**Release Date**: 04/23/2026
+
+- improve: Support for Python 3.13
+- fix: No errors when invalid GUID is provided to /wonderland command
+- feat: Added /del for deleting bot messages in DMs only
+
 ## v1.0.3
 
 **Release Date**: 01/15/2026

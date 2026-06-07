@@ -1,19 +1,27 @@
+
+
+
 import discord
 from discord.ext import commands
 from discord import app_commands
+from bot.utils.db import db
+from bot.utils.translator import _
 
 
 class InfoCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="about", description="Learn about the Wonderland bot.")
+    @app_commands.command(name="about", description=app_commands.locale_str("cmd_about_desc"))
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def about(self, interaction: discord.Interaction):
+        user_settings = await db.get_user_settings(interaction.user.id)
+        lang = user_settings["language"]
+
         embed = discord.Embed(
-            title="Wonderland Explorer",
+            title=_("about_title", lang, interaction),
             color=15844367,
-            description="This bot is made by Studio Butter ([@charaanimates](<discord://-/users/674463869816799243>)) and is open-source on [GitHub](<https://github.com/studiobutter/Wonderland_Share>). For questions or issues with this bot, DM me on Discord or open an issue on GitHub.\nTo contribute, DM me or open a PR on GitHub.\nThis bot is self-hosted in my house, so uptime is not guaranteed. If you wish to have it hosted 24/7, feel free to donate [here](<https://ko-fi.com/studiobutterteam>)\n\n[Join our Miliastra Discord Community](<https://discord.gg/2cJyk55Mz9>)",
+            description=_("about_description", lang, interaction),
         )
         await interaction.response.send_message(embed=embed)
 

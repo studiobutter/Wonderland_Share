@@ -1,0 +1,8 @@
+{
+    "supported_languages": [
+        { "code": "auto", "label_key": "lang_auto", "api_locale": "en-us" },
+        { "code": "en", "label_key": "lang_en", "api_locale": "en-us" },
+        { "code": "zh-TW", "label_key": "lang_zh_tw", "api_locale": "zh-tw" },
+        { "code": "vi", "label_key": "lang_vi", "api_locale": "vi-vn" }
+    ]
+}

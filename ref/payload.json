@@ -1,6 +1,9 @@
 {
     "url": "https://bbs-api-os.hoyolab.com/community/ugc_community/web/api/level/full/info",
     "request_type": "POST",
+    "headers": {
+        "x-rpc-language": "en-us"
+    },
     "payload": {
         "level_id": "guid",
         "region": "",

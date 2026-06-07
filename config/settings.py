@@ -1,3 +1,4 @@
+"""Configuration settings for the bot."""
 import os
 from dotenv import load_dotenv
 
@@ -11,6 +12,7 @@ OWNER_ID = os.getenv('OWNER_ID')
 
 # Server Region
 class ServerRegion:
+    """Supported server region constants."""
     ASIA = 'os_asia'
     EUROPE = 'os_euro'
     AMERICA = 'os_usa'

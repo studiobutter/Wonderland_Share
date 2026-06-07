@@ -1,0 +1,70 @@
+{
+    "changelogs": [
+        {
+            "version": "1.0.0",
+            "date": "11/22/2025",
+            "changes": [
+                "Phát hành lần đầu"
+            ]
+        },
+        {
+            "version": "1.0.1",
+            "date": "11/23/2025",
+            "changes": [
+                "Thêm lệnh `/about`, ảnh bìa của lệnh `/wonderland` hiện được tải lên Discord CDN và sử dụng nó để hiển thị thay vì tải từ máy chủ của HoYo. Giới thiệu lệnh `/changelogs` để xem nhật ký thay đổi."
+            ]
+        },
+        {
+            "version": "1.0.2",
+            "date": "12/03/2025",
+            "changes": [
+                "fix: Sửa lỗi GUID trước đó bị giữ lại khi chạy lệnh `/wonderland`"
+            ]
+        },
+        {
+            "version": "1.0.3",
+            "date": "01/15/2026",
+            "changes": [
+                "fix: Ngăn chặn lệnh `/wonderland` bị lỗi khi mô tả embed vượt quá giới hạn của Discord",
+                "imp: Cắt ngắn các mô tả cấp độ quá dài để dễ đọc hơn trên thiết bị di động",
+                "imp: Cho phép sử dụng các lệnh trong Tin nhắn trực tiếp (DMs)",
+                "imp: [/about] Thêm liên kết đến máy chủ Cộng đồng (Wonderland Cafe)",
+                "int: Thêm các tệp nhật ký luân phiên hàng ngày để cải thiện việc gỡ lỗi và tăng tính ổn định"
+            ]
+        },
+        {
+            "version": "1.0.4",
+            "date": "04/23/2026",
+            "changes": [
+                "imp: Hỗ trợ Python 3.13",
+                "fix: Không còn lỗi khi cung cấp GUID không hợp lệ cho lệnh `/wonderland`",
+                "feat: Thêm lệnh `/del` để xóa tin nhắn của bot (chỉ áp dụng trong DM)."
+            ]
+        },
+        {
+            "version": "1.0.5",
+            "date": "04/26/2026",
+            "changes": [
+                "fix: Các ký tự GUID không phải là chữ số thập lục phân hợp lệ hiện đã được xử lý đúng cách trong lệnh `/wonderland`"
+            ]
+        },
+        {
+            "version": "1.0.6",
+            "date": "06/07/2026",
+            "changes": [
+                "imp: Mở bằng Genshin Impact - Cloud",
+                "imp: Thêm Lượt thích, Độ hot và Số lượng người chơi cần thiết để chơi."
+            ]
+        },
+        {
+            "version": "1.0.7",
+            "date": "06/08/2026",
+            "changes": [
+                "imp: Thêm cài đặt để thiết lập ngôn ngữ người dùng và khu vực máy chủ mặc định",
+                "loc: Hỗ trợ ngôn ngữ Tiếng Anh, Tiếng Việt và Tiếng Trung (Phồn thể), nhiều ngôn ngữ khác sẽ sớm được ra mắt! Sắp mở nhận đóng góp dịch thuật.",
+                "imp: Kỳ vực sẽ hiển thị theo ngôn ngữ đặt trong cài đặt bot. Và sẽ tự động quay trở về ngôn ngữ gốc nếu không có",
+                "imp: Kiểm tra QA của mã nguồn"
+            ]
+        }
+    ]
+}

@@ -16,15 +16,17 @@ from bot.utils.images import (
     remove_cached_file,
     upload_file_via_interaction,
 )
+from bot.utils.db import db
+from bot.utils.translator import _
 
 MAX_DESC_LENGTH = 1024  # Mobile-friendly summary limit
 logger = logging.getLogger(__name__)
 
 from config.settings import REGION_NAMES, ServerRegion
 
-def truncate_description(text: str, limit: int = 2048) -> str:
+def truncate_description(text: str, limit: int = 2048, lang: str = "en", interaction: discord.Interaction = None) -> str:
     if not text:
-        return "No description provided."
+        return _("wonderland_no_desc", lang, interaction)
     if len(text) <= limit:
         return text
     return text[: limit - 3].rstrip() + "..."
@@ -40,10 +42,11 @@ class WonderlandCog(commands.Cog):
             self.embed_template = json.load(f)
 
     @app_commands.command(
-        name="wonderland", description="Fetch information about a Wonderland level."
+        name="wonderland", description=app_commands.locale_str("cmd_wonderland_desc")
     )
     @app_commands.describe(
-        guid="The GUID of the level. (9-12 digits)", server="The server the level is on."
+        guid=app_commands.locale_str("cmd_wonderland_guid_desc"), 
+        server=app_commands.locale_str("cmd_wonderland_server_desc")
     )
     @app_commands.choices(
         server=[
@@ -53,12 +56,25 @@ class WonderlandCog(commands.Cog):
     )
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def wonderland(
-        self, interaction: discord.Interaction, guid: str, server: str
+        self, interaction: discord.Interaction, guid: str, server: str = None
     ):
+        user_settings = await db.get_user_settings(interaction.user.id)
+        lang = user_settings["language"]
+        
+        if server is None:
+            server = user_settings.get("default_server")
+            if server is None:
+                return await interaction.response.send_message(
+                    _("wonderland_server_not_set", lang, interaction),
+                    ephemeral=True
+                )
+
         # Validate GUID: only numeric GUIDs are accepted (9-12 digits)
         if not guid.isdigit() or len(guid) not in range(9, 12):
             error_embed = discord.Embed(
-                title="Invalid GUID", description="Please enter a valid GUID (9-12 digits).", color=15158332
+                title=_("wonderland_invalid_guid", lang, interaction), 
+                description=_("wonderland_guid_desc", lang, interaction), 
+                color=15158332
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
             return
@@ -79,13 +95,19 @@ class WonderlandCog(commands.Cog):
         payload["region"] = server
 
         url = self.payload_template["url"]
+        headers = copy.deepcopy(self.payload_template.get("headers", {}))
+        
+        # Get resolved API language code (xx-xx format)
+        from bot.utils.translator import translator
+        rpc_lang = translator.get_api_lang_code(lang, interaction)
+        headers["x-rpc-language"] = rpc_lang
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=payload) as response:
+            async with session.post(url, json=payload, headers=headers) as response:
                 if response.status != 200:
                     error_embed = discord.Embed(
-                        title="An error occurred",
-                        description="The server returned an error.",
+                        title=_("wonderland_server_error", lang, interaction),
+                        description=_("wonderland_server_error", lang, interaction),
                         color=15158332,
                     )
                     if use_channel_fallback:
@@ -102,8 +124,8 @@ class WonderlandCog(commands.Cog):
                     data = await response.json()
                 except json.JSONDecodeError:
                     error_embed = discord.Embed(
-                        title="An error occurred",
-                        description="Could not decode the response from the server.",
+                        title=_("wonderland_decode_error", lang, interaction),
+                        description=_("wonderland_decode_error", lang, interaction),
                         color=15158332,
                     )
                     if use_channel_fallback:
@@ -118,7 +140,7 @@ class WonderlandCog(commands.Cog):
 
         if data.get("retcode") != 0:
             error_embed = discord.Embed(
-                title="An error occurred",
+                title=_("wonderland_server_error", lang, interaction),
                 description=data.get("message", "Unknown error"),
                 color=15158332,
             )
@@ -148,14 +170,15 @@ class WonderlandCog(commands.Cog):
 
             # Check for specific "not found" retcode
             if level_detail.get("retcode") == -2000431:
+                server_name = _(f"server_{server.replace('os_', '').replace('euro', 'europe').replace('usa', 'america')}", lang, interaction)
                 error_embed = discord.Embed(
-                    title="❌ GUID Not Found",
-                    description=f"The Wonderland stage with GUID `{guid}` does not exist on the `{REGION_NAMES.get(server, server)}` server.",
+                    title=_("wonderland_not_found_title", lang, interaction),
+                    description=_("wonderland_not_found_desc", lang, interaction).format(guid=guid, server=server_name),
                     color=15158332,
                 )
             else:
                 error_embed = discord.Embed(
-                    title="An error occurred",
+                    title=_("wonderland_server_error", lang, interaction),
                     description=nested_msg or data.get("message", "Level not found"),
                     color=15158332,
                 )
@@ -171,8 +194,8 @@ class WonderlandCog(commands.Cog):
             level_info = level_detail["data"]["level_detail_response"]["level_info"]
         except (KeyError, TypeError):
             error_embed = discord.Embed(
-                title="An error occurred",
-                description="Could not find level information in the response.",
+                title=_("wonderland_info_not_found", lang, interaction),
+                description=_("wonderland_info_not_found", lang, interaction),
                 color=15158332,
             )
             if use_channel_fallback:
@@ -189,13 +212,17 @@ class WonderlandCog(commands.Cog):
         raw_desc = level_info.get("desc", "")
         embed = embed_data["embeds"][0]
         embed["title"] = level_info.get("level_name", "N/A")
-        embed["description"] = truncate_description(raw_desc, MAX_DESC_LENGTH)
+        embed["description"] = truncate_description(raw_desc, MAX_DESC_LENGTH, lang, interaction)
         embed["image"]["url"] = level_info.get("cover_img", {}).get("url")
         for field in embed["fields"]:
+            # Translate field name using key from template
+            field["name"] = _(field["name"], lang, interaction)
+            
             if field["value"] == "level_id":
                 field["value"] = level_info.get("level_id", "N/A")
             elif field["value"] == "server_region":
-                field["value"] = REGION_NAMES.get(server, "N/A")
+                server_name = _(f"server_{server.replace('os_', '').replace('euro', 'europe').replace('usa', 'america')}", lang, interaction)
+                field["value"] = server_name
 
         # Dynamically populate footer data
         footer_data = {
@@ -226,7 +253,7 @@ class WonderlandCog(commands.Cog):
                 ):  # Button with link
                     view.add_item(
                         discord.ui.Button(
-                            label=component_data.get("label"),
+                            label=_(component_data.get("label"), lang, interaction),
                             url=component_data.get("url"),
                             style=discord.ButtonStyle.link,
                         )

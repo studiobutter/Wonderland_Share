@@ -1,16 +1,19 @@
 """Main Discord bot instance."""
-import discord
-from discord.ext import commands, tasks
-import os
-import sys
 import json
 import logging
+import os
+from pathlib import Path
+import sys
 from logging.handlers import TimedRotatingFileHandler
 from typing import Literal, Optional
-from pathlib import Path
 
-from config.settings import DISCORD_TOKEN, BOT_PREFIX, BOT_STATUS, DEBUG, OWNER_ID
+import discord
+from discord.ext import commands, tasks
+
+from bot.utils.db import db
 from bot.utils.images import cleanup_old_cache_files
+from bot.utils.translator import translator
+from config.settings import BOT_PREFIX, BOT_STATUS, DEBUG, DISCORD_TOKEN, OWNER_ID
 
 # =====================
 # Jishaku environment
@@ -23,6 +26,7 @@ os.environ['JISHAKU_RETAIN'] = 'True'
 # Logging setup
 # =====================
 def setup_logging():
+    """Sets up the logging configuration for the bot."""
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
 
@@ -83,7 +87,7 @@ def get_latest_version() -> str:
                 changelogs = data.get('changelogs', [])
                 if changelogs:
                     return f"v{changelogs[-1].get('version', '1.0.0')}"
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-exception-caught
         logger.warning("Failed to load version from changelogs: %s", e)
     return "v1.0.0"
 
@@ -93,7 +97,12 @@ def get_latest_version() -> str:
 # =====================
 @bot.event
 async def on_ready():
+    """Event handler for when the bot is ready."""
     logger.info("✅ Bot connected as %s", bot.user)
+
+    # Initialize database
+    await db.initialize()
+    logger.info("✅ Database initialized")
 
     latest_version = get_latest_version()
     custom_status = discord.CustomActivity(
@@ -106,7 +115,8 @@ async def on_ready():
 
 
 @bot.event
-async def on_error(event, *args, **kwargs):
+async def on_error(event, *args, **kwargs): # pylint: disable=unused-argument
+    """Event handler for unhandled errors."""
     logger.exception("Unhandled error in event: %s", event)
 
 
@@ -115,6 +125,7 @@ async def on_error(event, *args, **kwargs):
 # =====================
 @tasks.loop(hours=1)
 async def periodic_cache_cleanup():
+    """Task loop to clean up old cache files periodically."""
     try:
         deleted = await cleanup_old_cache_files(
             cache_dir='.cache',
@@ -125,12 +136,13 @@ async def periodic_cache_cleanup():
                 "Periodic cache cleanup removed %s old file(s)",
                 deleted
             )
-    except Exception:
+    except Exception: # pylint: disable=broad-exception-caught
         logger.exception("Error during periodic cache cleanup")
 
 
 @periodic_cache_cleanup.before_loop
 async def before_periodic_cleanup():
+    """Pre-task check to wait for the bot to be ready."""
     await bot.wait_until_ready()
 
 
@@ -138,6 +150,7 @@ async def before_periodic_cleanup():
 # Cog loading
 # =====================
 async def load_cogs():
+    """Loads all the extensions in the cogs directory."""
     if DEBUG:
         await bot.load_extension('jishaku')
         logger.info("✅ Loaded extension: jishaku")
@@ -150,13 +163,14 @@ async def load_cogs():
             try:
                 await bot.load_extension(f"bot.cogs.{cog_name}")
                 logger.info("✅ Loaded cog: %s", cog_name)
-            except Exception:
+            except Exception: # pylint: disable=broad-exception-caught
                 logger.exception("❌ Failed to load cog: %s", cog_name)
 
     try:
+        await bot.tree.set_translator(translator)
         synced = await bot.tree.sync()
         logger.info("✅ Synced %s slash command(s)", len(synced))
-    except Exception:
+    except Exception: # pylint: disable=broad-exception-caught
         logger.exception("❌ Failed to sync application commands")
 
 
@@ -171,6 +185,7 @@ async def sync(
     guilds: commands.Greedy[discord.Object],
     spec: Optional[Literal["~", "*", "^"]] = None,
 ) -> None:
+    """Syncs the slash commands for the bot."""
     if not guilds:
         if spec == "~":
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
@@ -207,6 +222,7 @@ async def sync(
 # Shutdown
 # =====================
 def shutdown_handler():
+    """Handles the bot shutdown process."""
     logger.info("🔌 Shutting down bot...")
 
 
