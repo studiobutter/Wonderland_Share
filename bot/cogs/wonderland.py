@@ -197,6 +197,14 @@ class WonderlandCog(commands.Cog):
             elif field["value"] == "server_region":
                 field["value"] = REGION_NAMES.get(server, "N/A")
 
+        # Dynamically populate footer data
+        footer_data = {
+            "good_rate": level_info.get("good_rate", "N/A"),
+            "hot_score": level_info.get("hot_score", "N/A"),
+            "show_limit_play_num_str": level_info.get("show_limit_play_num_str", "N/A")
+        }
+        embed["footer"]["text"] = embed["footer"]["text"].format(**footer_data)
+
         # Populate components
         components = embed_data["components"]
         for row in components:
