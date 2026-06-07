@@ -52,7 +52,7 @@
             "version": "1.0.6",
             "date": "04/26/2026",
             "changes": [
-                "imp: Open with Genshin Impact - Cloud"
+                "imp: Open with Genshin Impact - Cloud",
                 "imp: Added Likes, Hotness and Amount of players requires to play.
             ]
         }
