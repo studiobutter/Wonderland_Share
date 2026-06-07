@@ -36,6 +36,13 @@
         {
           "type": 2,
           "style": 5,
+          "url": "https://link.studiobutter.io.vn/ugc/wonderland?ugc_id=level_id&server=server_region&is_cloud=1",
+          "custom_id": "p_2392868373947195738",
+          "label": "Open in Genshin - Cloud"
+        },
+        {
+          "type": 2,
+          "style": 5,
           "url": "https://act.hoyolab.com/ys/ugc_community/mx/#/pages/level-detail/index?id=level_id&region=server_region",
           "custom_id": "p_239284290381156429",
           "label": "Check HoYoLAB page"
