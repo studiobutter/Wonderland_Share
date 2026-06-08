@@ -32,3 +32,4 @@ bot_data.db
 logs/
 *.log
 *.jsonc
+.crowdin

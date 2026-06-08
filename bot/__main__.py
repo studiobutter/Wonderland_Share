@@ -78,9 +78,9 @@ bot = commands.Bot(
 # Helpers
 # =====================
 def get_latest_version() -> str:
-    """Get the latest version from changelogs.json."""
+    """Get the latest version from changelogs/en.json."""
     try:
-        changelogs_file = Path("changelogs.json")
+        changelogs_file = Path("changelogs/en.json")
         if changelogs_file.exists():
             with open(changelogs_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
