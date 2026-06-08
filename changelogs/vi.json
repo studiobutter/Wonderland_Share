@@ -2,68 +2,68 @@
     "changelogs": [
         {
             "version": "1.0.0",
-            "date": "11/22/2025",
+            "date": "22/11/2025",
             "changes": [
-                "Initial release"
+                "Phát hành lần đầu"
             ]
         },
         {
             "version": "1.0.1",
-            "date": "11/23/2025",
+            "date": "23/11/2025",
             "changes": [
-                "Added `/about`, `/wonderland` cover images now upload to Discord CDN and use it to load instead of loading from HoYo servers. Introduce `/changelogs` command to view changelogs."
+                "Thêm lệnh `/about`, ảnh bìa của lệnh `/wonderland` hiện được tải lên Discord CDN và sử dụng nó để hiển thị thay vì tải từ máy chủ của HoYo. Giới thiệu lệnh `/changelogs` để xem nhật ký thay đổi."
             ]
         },
         {
             "version": "1.0.2",
-            "date": "12/03/2025",
+            "date": "03/12/2025",
             "changes": [
-                "fix: Previous GUID being retained when running `/wonderland`"
+                "fix: Sửa lỗi GUID trước đó bị giữ lại khi chạy lệnh `/wonderland`"
             ]
         },
         {
             "version": "1.0.3",
-            "date": "01/15/2026",
+            "date": "15/01/2026",
             "changes": [
-                "fix: Prevented /wonderland command from failing when embed descriptions exceed Discord limits",
-                "improve: Truncate long level descriptions for better mobile readability",
-                "improve: Allow commands to be used in Direct Messages (DMs)",
-                "improve: [/about] Added a link to Community server (Wonderland Cafe)",
-                "internal: Added daily rotating log files for improved debugging and stability"
+                "fix: Ngăn chặn lệnh `/wonderland` bị lỗi khi mô tả embed vượt quá giới hạn của Discord",
+                "imp: Cắt ngắn các mô tả cấp độ quá dài để dễ đọc hơn trên thiết bị di động",
+                "imp: Cho phép sử dụng các lệnh trong Tin nhắn trực tiếp (DMs)",
+                "imp: [/about] Thêm liên kết đến máy chủ Cộng đồng (Wonderland Cafe)",
+                "int: Thêm các tệp nhật ký luân phiên hàng ngày để cải thiện việc gỡ lỗi và tăng tính ổn định"
             ]
         },
         {
             "version": "1.0.4",
-            "date": "04/23/2026",
+            "date": "23/04/2026",
             "changes": [
-                "improve: Support for Python 3.13",
-                "fix: No errors when invalid GUID is provided to /wonderland command",
-                "feat: Added /del for deleting bot messages in DMs only."
+                "imp: Hỗ trợ Python 3.13",
+                "fix: Không còn lỗi khi cung cấp GUID không hợp lệ cho lệnh `/wonderland`",
+                "feat: Thêm lệnh `/del` để xóa tin nhắn của bot (chỉ áp dụng trong DM)."
             ]
         },
         {
             "version": "1.0.5",
-            "date": "04/26/2026",
+            "date": "26/04/2025",
             "changes": [
-                "fix: GUID characters that are not valid hexadecimal digits are now properly handled in /wonderland command"
+                "fix: Các ký tự GUID không phải là chữ số thập lục phân hợp lệ hiện đã được xử lý đúng cách trong lệnh `/wonderland`"
             ]
         },
         {
             "version": "1.0.6",
-            "date": "06/07/2026",
+            "date": "07/06/2026",
             "changes": [
-                "imp: Open with Genshin Impact - Cloud",
-                "imp: Added Likes, Hotness and Amount of players requires to play."
+                "imp: Mở bằng Genshin Impact - Cloud",
+                "imp: Thêm Lượt thích, Độ hot và Số lượng người chơi cần thiết để chơi."
             ]
         },
         {
             "version": "1.0.7",
-            "date": "06/08/2026",
+            "date": "08/06/2026",
             "changes": [
-                "imp: Added settings to set user language and default server region",
-                "loc: Localization support for English, Vietnamese and Chinese (Traditional), more languages coming soon! Contributions coming soon.",
-                "imp: Wonderland command can call Localized texts. Fall back is used in the backend and show said content if said language isn't avaliable",
-                "imp: Code QA Check"
+                "imp: Thêm cài đặt để thiết lập ngôn ngữ người dùng và khu vực máy chủ mặc định",
+                "loc: Hỗ trợ ngôn ngữ Tiếng Anh, Tiếng Việt và Tiếng Trung (Phồn thể), nhiều ngôn ngữ khác sẽ sớm được ra mắt! Sắp mở nhận đóng góp dịch thuật.",
+                "imp: Kỳ vực sẽ hiển thị theo ngôn ngữ đặt trong cài đặt bot. Và sẽ tự động quay trở về ngôn ngữ gốc nếu không có",
+                "imp: Kiểm tra QA của mã nguồn"
             ]
         }
     ]
