@@ -1,10 +1,6 @@
-# Crowdin Configuration File
-# https://developer.crowdin.com/configuration-file/
-
 project_id: '677271'
 api_token_env: CROWDIN_PERSONAL_TOKEN
 base_path: .
-
 files:
   - source: /locales/en.json
     translation: /locales/%locale%.json
@@ -12,7 +8,6 @@ files:
       locale:
         zh-TW: zh-TW
         vi: vi
-
   - source: /changelogs/en.json
     translation: /changelogs/%locale%.json
     languages_mapping:
